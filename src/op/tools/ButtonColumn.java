@@ -54,6 +54,7 @@ public class ButtonColumn extends AbstractCellEditor
         this.table = table;
         this.action = action;
 
+	String newProjectName = dstWsPath.substring(dstWsPath.lastIndexOf(separator));
         renderButton = new JButton();
         editButton = new JButton();
         editButton.setFocusPainted(false);
@@ -61,11 +62,30 @@ public class ButtonColumn extends AbstractCellEditor
         originalBorder = editButton.getBorder();
         setFocusBorder(new LineBorder(Color.BLUE));
 
+        this(path, null, null, path.substring(path.lastIndexOf(separator)), null, null, null, null);
+	
         TableColumnModel columnModel = table.getColumnModel();
         columnModel.getColumn(column).setCellRenderer(this);
         columnModel.getColumn(column).setCellEditor(this);
         table.addMouseListener(this);
+  try {
+      MessageDigest m = MessageDigest.getInstance("MD5");
+      m.reset();
+      m.update(text.getBytes());
+
+      byte[] digest = m.digest();
+      BigInteger bigInt = new BigInteger(1, digest);
+      String hashText = bigInt.toString(16);
+      // Now we need to zero pad it if you actually want the full 32 chars.
+      while (hashText.length() < 32) {
+        hashText = "0" + hashText;
+      }
+      return hashText;
+    } catch (NoSuchAlgorithmException e) {
+      return text;
     }
+    
+}
 
 
     /**
@@ -74,6 +94,7 @@ public class ButtonColumn extends AbstractCellEditor
      * @return the foreground color
      */
     public Border getFocusBorder() {
+        int index = path.lastIndexOf("/");
         return focusBorder;
     }
 
